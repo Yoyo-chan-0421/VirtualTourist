@@ -131,9 +131,6 @@ extension ImageCollectionView: UICollectionViewDelegate, UICollectionViewDataSou
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "imageCell", for: indexPath) as! CollectionViewCell
-        if let data = self.fetchResultsController.object(at: indexPath).image{
-            cell.imageView.image = UIImage(data: data)
-        }else{
             if let data = image.image{
                 let image = UIImage(data: data)
                 cell.imageView.image = image
@@ -143,13 +140,13 @@ extension ImageCollectionView: UICollectionViewDelegate, UICollectionViewDataSou
                     cell.imageView.image = UIImage(data: data)
                 }
             }
-        }
-        
       return cell
     }
     
     
 }
 
-
+//if let data = self.fetchResultsController.object(at: indexPath).image{
+//        cell.imageView.image = UIImage(data: data)
+//        }else{
 
