@@ -188,6 +188,7 @@
                     </navigationItem>
                     <connections>
                         <outlet property="collectionView" destination="kId-Mi-ryj" id="JyN-qT-ETk"/>
+                        <outlet property="flowLayout" destination="dSY-lU-eXT" id="alo-3f-nvu"/>
                         <outlet property="mapView" destination="S0Z-vC-b8u" id="a4y-Eo-Lbv"/>
                         <outlet property="newCollectionButton" destination="cAU-pt-IpF" id="9Ew-qD-DRF"/>
                     </connections>

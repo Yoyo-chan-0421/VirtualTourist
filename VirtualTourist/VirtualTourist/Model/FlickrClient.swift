@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 class FlickrClient{
     struct Auth{
         static var apiKey = "ac450e1398c36f692650881ccf011933"
@@ -34,7 +35,7 @@ class FlickrClient{
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             guard let data = data else{
-                completionHandler(nil, error as? Error)
+                completionHandler(nil, error)
                 return
             }
             let decoder = JSONDecoder()
@@ -46,10 +47,10 @@ class FlickrClient{
                 completionHandler(response as? ResponseType, nil)
             }catch{
                 do{
-                    let errorResponse = try decoder.decode(Error.self, from: newData) as Error
+                    let errorResponse = try decoder.decode(ErrorMessage.self, from: newData) as Error
                     completionHandler(nil, errorResponse)
                 }catch{
-                    completionHandler(nil, error as? Error)
+                    completionHandler(nil, error )
                     print(error)
                 }
             }
@@ -57,15 +58,30 @@ class FlickrClient{
         task.resume()
     }
     
-    class func getImage(lat: Double, long: Double, completionHandler: @escaping (Photo? , Error?) -> Void){
+    
+    class func getImages(lat: Double, lon: Double, completionHandler: @escaping (PhotosDetail?, Error?) -> Void) {
         let page = Int.random(in: 1..<200)
-        taskForGetRequest(url: Endpoints.getPictureByLatAndLong(lat, long, page).url, responseType: Photo.self) { response, error in
+        taskForGetRequest(url: Endpoints.getPictureByLatAndLong(lat, lon, page).url, responseType: Photo.self) { (response, error) in
             if let response = response{
-                completionHandler(response, nil)
+                completionHandler(response.photos, nil)
             }else{
                 completionHandler(nil, error)
             }
         }
     }
     
+    class func downloadAndShow(url: URL, completionHandler: @escaping (Data?, Error?) -> Void){
+        let task = URLSession.shared.dataTask(with: url) { data, response, error in
+            guard let data = data else{
+                DispatchQueue.main.async {
+                    completionHandler(nil, error)
+                }
+                return
+            }
+            DispatchQueue.main.async {
+                completionHandler(data, nil)
+            }
+        }
+        task.resume()
+    }
 }

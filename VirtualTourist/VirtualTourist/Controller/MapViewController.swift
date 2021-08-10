@@ -15,12 +15,12 @@ class MapViewController: UIViewController {
 	let userDefault = UserDefaults.standard
 	var fetchResultController:NSFetchedResultsController<Pin>!
 	var pin: Pin!
+	let appDelegate = UIApplication.shared.delegate as! AppDelegate
 	
 	// MARK: Outlets
 	@IBOutlet weak var mapView: MKMapView!
     @IBOutlet var longTapped: UILongPressGestureRecognizer!
-	
-    @IBOutlet weak var segmentControl: UISegmentedControl!
+	@IBOutlet weak var segmentControl: UISegmentedControl!
     
 	
 	
@@ -29,17 +29,27 @@ class MapViewController: UIViewController {
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
+		print(mapView.region)
 		fetchRequest()
 		mapView.delegate = self
 		setUpFetchedResultsController()
 		zoomToUserDefault()
-//		print(" map \(pins)")
+		print(" map \(pins)")
 		whatIsEnabled()
-		
 	}
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(true)
 	}
+	override func viewDidAppear(_ animated: Bool) {
+		
+		if (!appDelegate.launchedBefore){
+			print("this is the first launch")
+			appDelegate.hasLaunchedBefore()
+//			firstTimeMapSetting()
+		}
+	}
+	
+	
 	
 	//MARK: ACTIONS
     @IBAction func segmentChanged(_ sender: Any) {
@@ -54,6 +64,13 @@ class MapViewController: UIViewController {
 			break
 		}
     }
+//	func firstTimeMapSetting(){
+//		mapView.mapType = .mutedStandard
+//		let coordinate = CLLocationCoordinate2D(latitude: 0.0, longitude: 0.0)
+//		let span = MKCoordinateSpan(latitudeDelta: 1000, longitudeDelta: 1000)
+//		let region = MKCoordinateRegion(center: coordinate, span: span)
+//		self.mapView.setRegion(region, animated: true)
+//	}
     @IBAction func longPressing(_ sender: Any) {
      
         let longpress = UILongPressGestureRecognizer(target: self, action: #selector(longpressed(press:)))
@@ -148,7 +165,7 @@ extension MapViewController: MKMapViewDelegate{
 	
 	func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
 		let reusedId = "pin"
-		var pinShow = mapView.dequeueReusableAnnotationView(withIdentifier: reusedId) as? MKPinAnnotationView
+		var pinShow = mapView.dequeueReusableAnnotationView(withIdentifier: "pin") as? MKPinAnnotationView
 		
 		if pinShow == nil{
 			pinShow = MKPinAnnotationView(annotation: annotation, reuseIdentifier: reusedId)
@@ -185,7 +202,10 @@ extension MapViewController: MKMapViewDelegate{
 		mapView.isUserInteractionEnabled = true
 	}
 	
+	
 }
+
+
 
 
 

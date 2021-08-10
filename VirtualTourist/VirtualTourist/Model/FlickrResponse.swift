@@ -29,5 +29,6 @@ struct SinglePhototDetail: Codable {
     let ispublic: Int
     let isfriend: Int
     let isfamily: Int
-    let url_n: String
+    let url_m: String
 }
+

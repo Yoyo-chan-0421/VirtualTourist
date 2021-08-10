@@ -7,5 +7,6 @@
 
 import Foundation
 class ImageModel {
-    static var imageModel = [SinglePhototDetail]()
+    static var imageModel = [Photo]()
+    static var imageURL = [SinglePhototDetail]()
 }

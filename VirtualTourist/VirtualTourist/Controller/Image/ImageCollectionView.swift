@@ -26,9 +26,12 @@ class ImageCollectionView: UIViewController, NSFetchedResultsControllerDelegate 
     var dataController: DataController!
     var fetchResultsController: NSFetchedResultsController<FlickrImages>!
     var isThereImage: Bool!
+    var url: [URL?] = []
+    var singlePhotoDetail: SinglePhototDetail!
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var newCollectionButton: UIButton!
     @IBOutlet weak var collectionView: UICollectionView!
+    @IBOutlet weak var flowLayout: UICollectionViewFlowLayout!
     override func viewDidLoad() {
         super.viewDidLoad()
         mapView.delegate = self
@@ -36,8 +39,11 @@ class ImageCollectionView: UIViewController, NSFetchedResultsControllerDelegate 
         //        print("collection mapview \(mapView!)")
         mapViewEnable()
         
-        print("collection\(String(describing: pin))")
+        print("collection\(String(describing: pins))")
+        print(imageArray.count)
         addAnnotation()
+
+        
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
@@ -49,11 +55,12 @@ class ImageCollectionView: UIViewController, NSFetchedResultsControllerDelegate 
         self.dismiss(animated: true, completion: nil)
     }
     @IBAction func newCollectionButtonPressed(_ sender: Any) {
-        
+       generateNewCollection()
     }
     func generateNewCollection(){
-        
     }
+    
+    
     
     
     func setUpFetchedResultsController(){
@@ -111,6 +118,37 @@ extension ImageCollectionView: MKMapViewDelegate{
         mapView.isScrollEnabled = true
         mapView.isUserInteractionEnabled = true
     }
+}
+
+extension ImageCollectionView: UICollectionViewDelegate, UICollectionViewDataSource {
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return imageArray.count
+    }
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "imageCell", for: indexPath) as! CollectionViewCell
+        if let data = self.fetchResultsController.object(at: indexPath).image{
+            cell.imageView.image = UIImage(data: data)
+        }else{
+            if let data = image.image{
+                let image = UIImage(data: data)
+                cell.imageView.image = image
+            }else{
+                FlickrClient.downloadAndShow(url:URL(string: self.singlePhotoDetail.url_m)!) { data, error in
+                    guard let data = data else{return}
+                    cell.imageView.image = UIImage(data: data)
+                }
+            }
+        }
+        
+      return cell
+    }
+    
+    
 }
 
 

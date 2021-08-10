@@ -12,10 +12,22 @@ import CoreData
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     let dataController = DataController(name: "VirtualTourist")
-
+    var launchedBefore: Bool!
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        launchedBefore = UserDefaults.standard.bool(forKey: "hasLaunchedBefore")
+        if (launchedBefore){
+            launchedBefore = true
+            print("first launch")
+        }else{
+            UserDefaults.standard.setValue(true, forKey: "hasLaunchedBefore")
+            print("launched before")
+        }
         return true
+        
+    }
+    func hasLaunchedBefore(){
+        launchedBefore = true
     }
 
     // MARK: UISceneSession Lifecycle
