@@ -36,6 +36,7 @@ class MapViewController: UIViewController {
 		zoomToUserDefault()
 		print(" map \(pins)")
 		whatIsEnabled()
+
 	}
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(true)
@@ -126,6 +127,7 @@ class MapViewController: UIViewController {
 		pin.longitude = annotation.coordinate.longitude
 		pins.append(pin)
 		try?dataController.viewContext.save()
+		
         print("added Pin")
 		
 	}
@@ -146,7 +148,6 @@ class MapViewController: UIViewController {
             let wherePressed = press.location(in: mapView)
         let onTheMap = mapView.convert(wherePressed, toCoordinateFrom: mapView)
             addAnnotation(cllLocation: onTheMap)
-			
 		}
 	}
 	// MARK: User Defaults
@@ -181,9 +182,11 @@ extension MapViewController: MKMapViewDelegate{
 	func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
 			
 		let imageView = storyboard?.instantiateViewController(identifier: "ImageCollectionView") as? ImageCollectionView
-		let pinSelected = view.annotation as? MKPointAnnotation
+		guard let pinSelected = view.annotation else {
+			return
+		}
 		for pins in pins{
-			if pins.latitude == pinSelected?.coordinate.latitude && pins.longitude == pinSelected?.coordinate.longitude{
+			if pins.latitude == pinSelected.coordinate.latitude && pins.longitude == pinSelected.coordinate.longitude{
 				imageView?.dataController = dataController
 				imageView?.pin = pins
 			}

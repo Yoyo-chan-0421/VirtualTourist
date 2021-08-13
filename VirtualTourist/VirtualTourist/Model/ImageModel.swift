@@ -8,5 +8,7 @@
 import Foundation
 class ImageModel {
     static var imageModel = [Photo]()
-    static var imageURL = [SinglePhototDetail]()
+    static var imageURL: SinglePhototDetail?
+    static var imageData = [Data]()
+    static var photosDetail: PhotosDetail?
 }

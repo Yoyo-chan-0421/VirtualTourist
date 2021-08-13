@@ -26,8 +26,8 @@ class ImageCollectionView: UIViewController, NSFetchedResultsControllerDelegate 
     var dataController: DataController!
     var fetchResultsController: NSFetchedResultsController<FlickrImages>!
     var isThereImage: Bool!
-    var url: [URL?] = []
     var singlePhotoDetail: SinglePhototDetail!
+    var cell: CollectionViewCell!
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var newCollectionButton: UIButton!
     @IBOutlet weak var collectionView: UICollectionView!
@@ -42,22 +42,30 @@ class ImageCollectionView: UIViewController, NSFetchedResultsControllerDelegate 
         print("collection\(String(describing: pins))")
         print(imageArray.count)
         addAnnotation()
-
-        
+        collectionView.reloadData()
+        print(FlickrClient.Endpoints.getPictureByLatAndLong(pin.latitude, pin.longitude, Int.random(in: 1..<200)).url)
+        FlickrClient.requestImageLatAndLong(lat: pin.latitude, long: pin.longitude, completionHandler: handleImageByLatAndLongResponse(data:error:))
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
         collectionView.reloadData()
-        
-        
     }
     @IBAction func backButtonTapped(_ sender: Any) {
         self.dismiss(animated: true, completion: nil)
     }
     @IBAction func newCollectionButtonPressed(_ sender: Any) {
-       generateNewCollection()
+        generateNewCollection()
+        print("pressed")
     }
     func generateNewCollection(){
+        ImageModel.imageData = []
+        collectionView.reloadData()
+        self.dataController.viewContext.performAndWait{
+            let pin = dataController.viewContext.object(with: self.pin.objectID) as! Pin
+            pin.flickrImages = []
+            try? dataController.viewContext.save()
+            print("generating image")
+        }
     }
     
     
@@ -76,6 +84,7 @@ class ImageCollectionView: UIViewController, NSFetchedResultsControllerDelegate 
             print(error)
         }
     }
+    
     func delete(indexPath: NSIndexPath){
         let delete = fetchResultsController.object(at:  indexPath as IndexPath)
         dataController.viewContext.delete(delete)
@@ -85,19 +94,61 @@ class ImageCollectionView: UIViewController, NSFetchedResultsControllerDelegate 
             print(error)
         }
     }
+    func handleImageByLatAndLongResponse(data: Photo?, error: Error?){
+        if error == nil {
+        FlickrClient.requestUrl(imageInfor: FlickrClient.Endpoints.imageURL(ImageModel.imageURL!.server, ImageModel.imageURL!.id, ImageModel.imageURL!.secret).url, singleImage: ImageModel.imageURL!, completionHandler: handleImageURlResponse(image:error:))
+        }else{
+            print(error as Any)
+        }
+    }
+    func handleImageURlResponse(image: UIImage?, error: Error?) -> Void{
+        DispatchQueue.main.async {
+            self.cell.imageView.image = image
+        }
+    }
 }
+extension ImageCollectionView: UICollectionViewDelegate, UICollectionViewDataSource {
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return imageArray.count
+    }
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "imageCell", for: indexPath) as! CollectionViewCell
+   
+    return cell
+    }
+}
+
+
+//if let data = self.fetchResultsController.object(at: indexPath).image{
+//        cell.imageView.image = UIImage(data: data)
+//        }else{
+
 
 
 
 extension ImageCollectionView: MKMapViewDelegate{
     func addAnnotation(){
+        let location = CLLocationCoordinate2D(latitude: pin.latitude, longitude: pin.longitude)
+        let span = MKCoordinateSpan(latitudeDelta: 0.03, longitudeDelta: 0.03)
+        let regionCoordinates = MKCoordinateRegion(center: location, span: span)
+        mapView.setRegion(regionCoordinates, animated: true)
+        putAnnotation()
+    }
+    func putAnnotation(){
+        var annotation = [MKPointAnnotation]()
+        let latitude = CLLocationDegrees((pin.value(forKeyPath: "latitude") as? Double) ?? 0.0)
+        let longitude = CLLocationDegrees((pin.value(forKeyPath: "longitude") as? Double) ?? 0.0)
         
-        let annotation = MKPointAnnotation()
-        annotation.coordinate = CLLocationCoordinate2D(latitude: pin.latitude, longitude: pin.longitude)
-        self.mapView.removeAnnotation(annotation)
-        self.mapView.addAnnotation(annotation)
-        
-        self.mapView.showAnnotations(self.mapView.annotations, animated: true)
+        let center = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+        let annotations = MKPointAnnotation()
+        annotations.coordinate = center
+        annotation.append(annotations)
+        self.mapView.addAnnotation(annotations)
     }
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         let reusedId = "pin"
@@ -112,6 +163,7 @@ extension ImageCollectionView: MKMapViewDelegate{
         }
         return pinShow
     }
+    
     func mapViewEnable(){
         mapView.isZoomEnabled = false
         mapView.isRotateEnabled = false
@@ -119,34 +171,4 @@ extension ImageCollectionView: MKMapViewDelegate{
         mapView.isUserInteractionEnabled = true
     }
 }
-
-extension ImageCollectionView: UICollectionViewDelegate, UICollectionViewDataSource {
-    
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return imageArray.count
-    }
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "imageCell", for: indexPath) as! CollectionViewCell
-            if let data = image.image{
-                let image = UIImage(data: data)
-                cell.imageView.image = image
-            }else{
-                FlickrClient.downloadAndShow(url:URL(string: self.singlePhotoDetail.url_m)!) { data, error in
-                    guard let data = data else{return}
-                    cell.imageView.image = UIImage(data: data)
-                }
-            }
-      return cell
-    }
-    
-    
-}
-
-//if let data = self.fetchResultsController.object(at: indexPath).image{
-//        cell.imageView.image = UIImage(data: data)
-//        }else{
 

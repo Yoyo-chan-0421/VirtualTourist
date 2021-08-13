@@ -78,6 +78,7 @@
                         <outlet property="longTapped" destination="YgK-Ub-DR2" id="mUx-F2-wIP"/>
                         <outlet property="mapView" destination="Crt-Z8-tFp" id="Pcu-gS-0aZ"/>
                         <outlet property="segmentControl" destination="p1Z-2X-wUC" id="7f1-8y-Izz"/>
+                        <segue destination="e8K-FH-Pyr" kind="presentation" identifier="toImage" id="k7b-o7-1w8"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
@@ -94,11 +95,11 @@
             <objects>
                 <viewController storyboardIdentifier="ImageCollectionView" id="j81-nw-tnQ" customClass="ImageCollectionView" customModule="VirtualTourist" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="tzC-GR-XwX">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="842"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cAU-pt-IpF">
-                                <rect key="frame" x="138" y="850" width="138" height="30"/>
+                                <rect key="frame" x="138" y="796" width="138" height="30"/>
                                 <color key="backgroundColor" systemColor="systemBlueColor"/>
                                 <state key="normal" title="New Collection">
                                     <color key="titleColor" systemColor="labelColor"/>
@@ -108,14 +109,14 @@
                                 </connections>
                             </button>
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="S0Z-vC-b8u">
-                                <rect key="frame" x="0.0" y="88" width="414" height="218"/>
+                                <rect key="frame" x="0.0" y="56" width="414" height="218"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="218" id="0Pd-Hl-fYT"/>
                                     <constraint firstAttribute="width" constant="414" id="B1L-Uv-03T"/>
                                 </constraints>
                             </mapView>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="kId-Mi-ryj">
-                                <rect key="frame" x="0.0" y="305" width="414" height="506"/>
+                                <rect key="frame" x="0.0" y="273" width="414" height="484"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="dSY-lU-eXT">
                                     <size key="itemSize" width="128" height="128"/>
@@ -175,7 +176,7 @@
                     <navigationItem key="navigationItem" id="ouf-Gm-J60">
                         <barButtonItem key="leftBarButtonItem" id="TLI-wo-8j1">
                             <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="Hoz-dw-wSH">
-                                <rect key="frame" x="20" y="11" width="51.5" height="22"/>
+                                <rect key="frame" x="20" y="17" width="51.5" height="22"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="back" image="chevron.backward" catalog="system">
                                     <color key="titleColor" name="AccentColor"/>
@@ -204,7 +205,7 @@
                     <toolbarItems/>
                     <navigationItem key="navigationItem" id="BzE-lb-ETG"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="uah-6F-rJr">
-                        <rect key="frame" x="0.0" y="44" width="414" height="44"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="56"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
