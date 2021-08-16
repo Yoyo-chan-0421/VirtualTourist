@@ -41,13 +41,10 @@ class MapViewController: UIViewController {
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(true)
 	}
+	
+	
 	override func viewDidAppear(_ animated: Bool) {
-		
-		if (!appDelegate.launchedBefore){
-			print("this is the first launch")
-			appDelegate.hasLaunchedBefore()
-//			firstTimeMapSetting()
-		}
+		firstTimeOpeningSetting()
 	}
 	
 	
@@ -65,13 +62,20 @@ class MapViewController: UIViewController {
 			break
 		}
     }
-//	func firstTimeMapSetting(){
-//		mapView.mapType = .mutedStandard
-//		let coordinate = CLLocationCoordinate2D(latitude: 0.0, longitude: 0.0)
-//		let span = MKCoordinateSpan(latitudeDelta: 1000, longitudeDelta: 1000)
-//		let region = MKCoordinateRegion(center: coordinate, span: span)
-//		self.mapView.setRegion(region, animated: true)
-//	}
+	fileprivate func firstTimeOpeningSetting() {
+		if appDelegate.launchedBefore == false {
+			print("this is the first launch")
+			appDelegate.hasLaunchedBefore()
+			firstTimeMapSetting()
+		}
+	}
+	func firstTimeMapSetting(){
+		mapView.mapType = .mutedStandard
+		let coordinate = CLLocationCoordinate2D(latitude: 0.0, longitude: 0.0)
+		let span = MKCoordinateSpan(latitudeDelta:100.0, longitudeDelta: 100.0)
+		let region = MKCoordinateRegion(center: coordinate, span: span)
+		self.mapView.setRegion(region, animated: true)
+	}
     @IBAction func longPressing(_ sender: Any) {
      
         let longpress = UILongPressGestureRecognizer(target: self, action: #selector(longpressed(press:)))

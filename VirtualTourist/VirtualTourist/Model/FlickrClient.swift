@@ -14,14 +14,14 @@ class FlickrClient{
     }
     
     enum Endpoints {
-        static let base = "https://api.flickr.com/services/?method="
+        static let base = "https://www.flickr.com/services/rest/?method=flickr.photos.search"
         case getPictureByLatAndLong(Double, Double, Int)
        case imageURL(String, String, String)
         
         var stringValue: String{
             switch self {
             case .getPictureByLatAndLong(let lat, let lon, let page): return Endpoints.base + "&api_key=\(Auth.apiKey)&lat=\(lat)&lon=\(lon)&accuracy=16&page=\(page)&format=json"
-            case .imageURL(let server, let id, let secret): return "https://live.staticflickr.com/\(server)/\(id)_\(secret)_q.jpg"
+            case .imageURL(let server, let id, let secret): return "https://live.staticflickr.com/\(server)/\(id)_\(secret)_c.jpg"
             }
         }
         var url: URL {
@@ -30,7 +30,7 @@ class FlickrClient{
         
     }
 
-    class func requestImageLatAndLong(lat: Double, long: Double, completionHandler: @escaping (Photo?, Error?) -> Void ){
+    class func requestImageLatAndLong(lat: Double, long: Double, completionHandler: @escaping (Data?, Error?) -> Void ){
         let page = Int.random(in: 1..<200)
         let task = URLSession.shared.dataTask(with: Endpoints.getPictureByLatAndLong(lat, long, page).url) { data, response, error in
             guard let data = data else{
@@ -41,7 +41,7 @@ class FlickrClient{
             let decoder = JSONDecoder()
             do{
                 let imageData = try decoder.decode(Photo.self, from: data)
-                completionHandler(imageData, nil)
+                completionHandler(data, nil)
                 print(imageData)
             }catch{
                 completionHandler(nil, error)
@@ -54,7 +54,7 @@ class FlickrClient{
     
     class func requestUrl(imageInfor: URL, singleImage: SinglePhototDetail, completionHandler: @escaping (UIImage?, Error?) -> Void){
         
-        let task = URLSession.shared.dataTask(with: Endpoints.imageURL(singleImage.server, singleImage.id, singleImage.secret).url, completionHandler: { (data, response, error) in
+        let task = URLSession.shared.dataTask(with: URL(string: singleImage.urlM)!, completionHandler: { (data, response, error) in
             guard let data = data else{
                 completionHandler(nil, error)
                 return

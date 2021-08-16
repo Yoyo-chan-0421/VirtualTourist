@@ -44,6 +44,8 @@ class ImageCollectionView: UIViewController, NSFetchedResultsControllerDelegate 
         addAnnotation()
         collectionView.reloadData()
         print(FlickrClient.Endpoints.getPictureByLatAndLong(pin.latitude, pin.longitude, Int.random(in: 1..<200)).url)
+        print(FlickrClient.Endpoints.imageURL(ImageModel.imageURL?.server ?? "", ImageModel.imageURL?.id ?? "", ImageModel.imageURL?.secret ?? "").url)
+        print(" url = \(ImageModel.imageURL?.urlM ?? "no value")")
         FlickrClient.requestImageLatAndLong(lat: pin.latitude, long: pin.longitude, completionHandler: handleImageByLatAndLongResponse(data:error:))
     }
     override func viewWillAppear(_ animated: Bool) {
@@ -54,8 +56,7 @@ class ImageCollectionView: UIViewController, NSFetchedResultsControllerDelegate 
         self.dismiss(animated: true, completion: nil)
     }
     @IBAction func newCollectionButtonPressed(_ sender: Any) {
-        generateNewCollection()
-        print("pressed")
+        FlickrClient.requestImageLatAndLong(lat: pin.latitude, long: pin.longitude, completionHandler: handleImageByLatAndLongResponse(data:error:))
     }
     func generateNewCollection(){
         ImageModel.imageData = []
@@ -94,9 +95,9 @@ class ImageCollectionView: UIViewController, NSFetchedResultsControllerDelegate 
             print(error)
         }
     }
-    func handleImageByLatAndLongResponse(data: Photo?, error: Error?){
+    func handleImageByLatAndLongResponse(data: Data?, error: Error?){
         if error == nil {
-        FlickrClient.requestUrl(imageInfor: FlickrClient.Endpoints.imageURL(ImageModel.imageURL!.server, ImageModel.imageURL!.id, ImageModel.imageURL!.secret).url, singleImage: ImageModel.imageURL!, completionHandler: handleImageURlResponse(image:error:))
+            FlickrClient.requestUrl(imageInfor: URL(string: ImageModel.imageURL!.urlM)!, singleImage: ImageModel.imageURL!, completionHandler: handleImageURlResponse(image:error:))
         }else{
             print(error as Any)
         }
@@ -104,6 +105,7 @@ class ImageCollectionView: UIViewController, NSFetchedResultsControllerDelegate 
     func handleImageURlResponse(image: UIImage?, error: Error?) -> Void{
         DispatchQueue.main.async {
             self.cell.imageView.image = image
+            
         }
     }
 }
@@ -118,7 +120,16 @@ extension ImageCollectionView: UICollectionViewDelegate, UICollectionViewDataSou
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "imageCell", for: indexPath) as! CollectionViewCell
-   
+        let picture = imageArray[indexPath.row]
+        cell.imageView.image = UIImage(named: "placeHolder")
+        if let imagePin = picture.pin{
+            FlickrClient.requestImageLatAndLong(lat: imagePin.latitude, long: imagePin.longitude) { data, error in
+                guard let data = data else{return}
+                let uiImage = UIImage(data: data)
+                cell.imageView?.image = uiImage
+                cell.setNeedsLayout()
+            }
+        }
     return cell
     }
 }

@@ -18,16 +18,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         launchedBefore = UserDefaults.standard.bool(forKey: "hasLaunchedBefore")
         if (launchedBefore){
             launchedBefore = true
-            print("first launch")
+            print("launched before")
         }else{
             UserDefaults.standard.setValue(true, forKey: "hasLaunchedBefore")
-            print("launched before")
+            launchedBefore = false
+            print("first launch")
         }
         return true
         
     }
     func hasLaunchedBefore(){
-        launchedBefore = true
+        launchedBefore = false
     }
 
     // MARK: UISceneSession Lifecycle
