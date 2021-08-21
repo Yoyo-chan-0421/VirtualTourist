@@ -21,57 +21,78 @@ import CoreData
 class ImageCollectionView: UIViewController, NSFetchedResultsControllerDelegate {
     var pin: Pin!
     var pins = [Pin]()
-    var image: FlickrImages!
+    var flickrimage = FlickrImages()
     var imageArray = [FlickrImages]()
     var dataController: DataController!
     var fetchResultsController: NSFetchedResultsController<FlickrImages>!
-    var isThereImage: Bool!
     var singlePhotoDetail: SinglePhototDetail!
-    var cell: CollectionViewCell!
+    var urlArray: [URL] = []
+    var cell = CollectionViewCell()
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var newCollectionButton: UIButton!
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var flowLayout: UICollectionViewFlowLayout!
+    @IBOutlet weak var activityView: UIActivityIndicatorView!
+    @IBOutlet weak var noImage: UILabel!
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        let urls = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+        print(urls)
         mapView.delegate = self
-        //        print("image array count\(imageArray.count)")
-        //        print("collection mapview \(mapView!)")
         mapViewEnable()
-        
         print("collection\(String(describing: pins))")
         print(imageArray.count)
         addAnnotation()
         collectionView.reloadData()
-        print(FlickrClient.Endpoints.getPictureByLatAndLong(pin.latitude, pin.longitude, Int.random(in: 1..<200)).url)
-        print(FlickrClient.Endpoints.imageURL(ImageModel.imageURL?.server ?? "", ImageModel.imageURL?.id ?? "", ImageModel.imageURL?.secret ?? "").url)
-        print(" url = \(ImageModel.imageURL?.urlM ?? "no value")")
-        FlickrClient.requestImageLatAndLong(lat: pin.latitude, long: pin.longitude, completionHandler: handleImageByLatAndLongResponse(data:error:))
+        setUpFetchedResultsController()
+        noImage.isHidden = true
+        checkIfThereIsAlreadyImage()
     }
+    //                print(FlickrClient.Endpoints.getPictureByLatAndLong(pin.latitude, pin.longitude, Int.random(in: 1..<10)).url)
+    //        print(FlickrClient.Endpoints.imageURL(ImageModel.imageURL?.server ?? "", ImageModel.imageURL?.id ?? "", ImageModel.imageURL?.secret ?? "").url)
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
         collectionView.reloadData()
+        setUpFetchedResultsController()
+    }
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        fetchResultsController = nil
     }
     @IBAction func backButtonTapped(_ sender: Any) {
         self.dismiss(animated: true, completion: nil)
     }
-    @IBAction func newCollectionButtonPressed(_ sender: Any) {
-        FlickrClient.requestImageLatAndLong(lat: pin.latitude, long: pin.longitude, completionHandler: handleImageByLatAndLongResponse(data:error:))
-    }
-    func generateNewCollection(){
-        ImageModel.imageData = []
-        collectionView.reloadData()
-        self.dataController.viewContext.performAndWait{
-            let pin = dataController.viewContext.object(with: self.pin.objectID) as! Pin
-            pin.flickrImages = []
+    @IBAction func newCollectionButtonisPressed(_ sender: Any) {
+        newCollectionButton.isEnabled = false
+        for imageArrays in imageArray{
+            dataController.viewContext.delete(imageArrays)
             try? dataController.viewContext.save()
-            print("generating image")
+        }
+        imageArray = []
+        urlArray = []
+        
+        FlickrClient.requestImageLatAndLong(lat: pin.latitude, long: pin.longitude, completionHandler: handleImageByLatAndLongResponse(data:error:))
+        newCollectionButton.isEnabled = true
+    }
+    
+    
+    fileprivate func checkIfThereIsAlreadyImage() {
+        if fetchResultsController.fetchedObjects?.count == 0{
+            print("no image")
+            activityView.startAnimating()
+            FlickrClient.requestImageLatAndLong(lat: pin.latitude, long: pin.longitude, completionHandler: handleImageByLatAndLongResponse(data:error:))
+        }else if fetchResultsController.fetchedObjects!.count > 0{
+            print("There is already images")
+            activityView.isHidden = true
+            setUpFetchedResultsController()
+            try? dataController.viewContext.save()
+            let image = UIImage(data: flickrimage.image!)
+            cell.imageView.image = image
+            
         }
     }
-    
-    
-    
-    
     func setUpFetchedResultsController(){
         let fetchRequest:NSFetchRequest<FlickrImages> = FlickrImages.fetchRequest()
         fetchRequest.sortDescriptors = []
@@ -85,59 +106,80 @@ class ImageCollectionView: UIViewController, NSFetchedResultsControllerDelegate 
             print(error)
         }
     }
+    func delete(indexPath: IndexPath){
+        dataController.viewContext.delete(imageArray[indexPath.row])
+        imageArray.remove(at: indexPath.row)
+        urlArray.remove(at: indexPath.row)
+        collectionView.reloadData()
+        try? dataController.viewContext.save()
+    }
     
-    func delete(indexPath: NSIndexPath){
-        let delete = fetchResultsController.object(at:  indexPath as IndexPath)
-        dataController.viewContext.delete(delete)
-        do{
-            try dataController.viewContext.save()
-        }catch{
-            print(error)
-        }
-    }
-    func handleImageByLatAndLongResponse(data: Data?, error: Error?){
-        if error == nil {
-            FlickrClient.requestUrl(imageInfor: URL(string: ImageModel.imageURL!.urlM)!, singleImage: ImageModel.imageURL!, completionHandler: handleImageURlResponse(image:error:))
-        }else{
+    func handleImageByLatAndLongResponse(data:[SinglePhototDetail?], error: Error?){
+        if error != nil{
             print(error as Any)
+        }else{
+            activityView.startAnimating()
+
+            if data.count != 0 {
+                for data in data{
+                    let picture = FlickrImages(context: self.dataController.viewContext)
+                    picture.pin = self.pin
+                    imageArray.append(picture)
+                    let imageURL = FlickrClient.Endpoints.imageURL(data!.server, data!.id, data!.secret)
+                    urlArray.append(imageURL.url)
+                    activityView.stopAnimating()
+                    activityView.isHidden = true
+                }
+            }else{
+                noImage.isHidden = false
+                newCollectionButton.isEnabled = true
+                activityView.stopAnimating()
+                activityView.isHidden = true
+                print("no image")
+            }
         }
-    }
-    func handleImageURlResponse(image: UIImage?, error: Error?) -> Void{
-        DispatchQueue.main.async {
-            self.cell.imageView.image = image
-            
-        }
+        collectionView.reloadData()
+        try? dataController.viewContext.save()
     }
 }
+
+
+
 extension ImageCollectionView: UICollectionViewDelegate, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return imageArray.count
+        return urlArray.count
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        
+        delete(indexPath: indexPath)
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "imageCell", for: indexPath) as! CollectionViewCell
-        let picture = imageArray[indexPath.row]
-        cell.imageView.image = UIImage(named: "placeHolder")
-        if let imagePin = picture.pin{
-            FlickrClient.requestImageLatAndLong(lat: imagePin.latitude, long: imagePin.longitude) { data, error in
-                guard let data = data else{return}
-                let uiImage = UIImage(data: data)
-                cell.imageView?.image = uiImage
-                cell.setNeedsLayout()
+        let picture = imageArray[indexPath.count]
+        let url = urlArray[indexPath.row]
+//        cell.imageView.image = UIImage(named: "placeHolder")
+
+        if let data = picture.image{
+                cell.imageView.image = UIImage(data: data)
+            
+        }else{
+
+            cell.imageView.image = UIImage(named: "placeHolder")
+            FlickrClient.requestUrl(imageInfor: url) { data, error in
+                if let data = data {
+                    cell.imageView.image = UIImage(data: data)
+                    self.imageArray[indexPath.row].image = data
+                    self.dataController.autoSave()
+
+                    try? self.dataController.viewContext.save()
+                }
             }
         }
-    return cell
+        return cell
     }
 }
 
-
-//if let data = self.fetchResultsController.object(at: indexPath).image{
-//        cell.imageView.image = UIImage(data: data)
-//        }else{
 
 
 

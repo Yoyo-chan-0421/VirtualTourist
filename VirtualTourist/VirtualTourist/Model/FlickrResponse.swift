@@ -9,6 +9,11 @@ import Foundation
 struct Photo: Codable {
     let photos: PhotosDetail
     let stat: String
+    
+    enum CodingKeys: String, CodingKey {
+        case photos = "photos"
+        case stat = "stat"
+    }
 }
 
 struct PhotosDetail: Codable {
@@ -18,6 +23,13 @@ struct PhotosDetail: Codable {
     let total: Int
     let photo: [SinglePhototDetail]
     
+    enum CodingKeys: String, CodingKey {
+        case page = "page"
+        case pages = "pages"
+        case perpage = "perpage"
+        case total = "total"
+        case photo = "photo"
+    }
 }
 
 struct SinglePhototDetail: Codable {
@@ -27,16 +39,8 @@ struct SinglePhototDetail: Codable {
     let server: String
     let farm: Int
     let title: String
-    let isPublic: Int
-    let isFriend: Int
-    let isFamily: Int
-    let urlM: String
-    enum CodingKeys: String, CodingKey {
-        case id, owner, secret, server, farm, title
-        case isPublic = "ispublic"
-        case isFriend = "isfriend"
-        case isFamily = "isfamily"
-        case urlM = "url_m"
-    }
+    let ispublic: Int
+    let isfriend: Int
+    let isfamily: Int
 }
 

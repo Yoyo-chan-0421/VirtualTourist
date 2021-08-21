@@ -194,8 +194,10 @@ extension MapViewController: MKMapViewDelegate{
 				imageView?.dataController = dataController
 				imageView?.pin = pins
 			}
-			present(imageView!, animated: true, completion: nil)
+			
 		}
+		present(imageView!, animated: true, completion: nil)
+		mapView.deselectAnnotation(view.annotation, animated: true)
 		}
 	func mapViewDidChangeVisibleRegion(_ mapView: MKMapView) {
 		UserDefaultValues()

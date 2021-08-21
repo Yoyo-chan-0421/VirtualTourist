@@ -98,16 +98,6 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="842"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cAU-pt-IpF">
-                                <rect key="frame" x="138" y="796" width="138" height="30"/>
-                                <color key="backgroundColor" systemColor="systemBlueColor"/>
-                                <state key="normal" title="New Collection">
-                                    <color key="titleColor" systemColor="labelColor"/>
-                                </state>
-                                <connections>
-                                    <action selector="newCollectionButtonPressed:" destination="j81-nw-tnQ" eventType="touchUpInside" id="sJH-8h-c8q"/>
-                                </connections>
-                            </button>
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="S0Z-vC-b8u">
                                 <rect key="frame" x="0.0" y="56" width="414" height="218"/>
                                 <constraints>
@@ -124,6 +114,13 @@
                                     <size key="footerReferenceSize" width="0.0" height="0.0"/>
                                     <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 </collectionViewFlowLayout>
+                                <label key="backgroundView" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="There is no image in this Location" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="SNe-c6-jJF">
+                                    <rect key="frame" x="0.0" y="0.0" width="414" height="484"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                    <nil key="textColor"/>
+                                    <nil key="highlightedColor"/>
+                                </label>
                                 <cells>
                                     <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="imageCell" id="4ad-hL-oDS" customClass="CollectionViewCell" customModule="VirtualTourist" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="0.0" width="128" height="128"/>
@@ -157,20 +154,34 @@
                                     <outlet property="delegate" destination="j81-nw-tnQ" id="MCH-HT-aez"/>
                                 </connections>
                             </collectionView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cAU-pt-IpF">
+                                <rect key="frame" x="138" y="787" width="138" height="30"/>
+                                <color key="backgroundColor" systemColor="systemBlueColor"/>
+                                <state key="normal" title="New Collection">
+                                    <color key="titleColor" systemColor="labelColor"/>
+                                </state>
+                                <connections>
+                                    <action selector="newCollectionButtonisPressed:" destination="j81-nw-tnQ" eventType="touchUpInside" id="Wn9-G1-uJu"/>
+                                </connections>
+                            </button>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" style="large" translatesAutoresizingMaskIntoConstraints="NO" id="4Y9-SF-Y9C">
+                                <rect key="frame" x="198" y="506" width="20" height="20"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </activityIndicatorView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="3nU-22-0YM"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="S0Z-vC-b8u" firstAttribute="top" secondItem="3nU-22-0YM" secondAttribute="top" id="4sd-5V-l0P"/>
-                            <constraint firstItem="cAU-pt-IpF" firstAttribute="top" secondItem="kId-Mi-ryj" secondAttribute="bottom" constant="39" id="8KF-LC-NqV"/>
                             <constraint firstItem="S0Z-vC-b8u" firstAttribute="leading" secondItem="3nU-22-0YM" secondAttribute="leading" id="He3-Vm-pwq"/>
-                            <constraint firstItem="cAU-pt-IpF" firstAttribute="leading" secondItem="3nU-22-0YM" secondAttribute="leading" constant="138" id="JWz-yw-ahj"/>
                             <constraint firstItem="kId-Mi-ryj" firstAttribute="trailing" secondItem="3nU-22-0YM" secondAttribute="trailing" id="P1F-7z-kaK"/>
-                            <constraint firstAttribute="bottom" secondItem="cAU-pt-IpF" secondAttribute="bottom" constant="16" id="TKj-t3-Jm9"/>
+                            <constraint firstItem="cAU-pt-IpF" firstAttribute="leading" secondItem="3nU-22-0YM" secondAttribute="leading" constant="138" id="UvP-0K-eXj"/>
+                            <constraint firstItem="cAU-pt-IpF" firstAttribute="centerX" secondItem="kId-Mi-ryj" secondAttribute="centerX" id="hsy-zo-RVB"/>
                             <constraint firstItem="kId-Mi-ryj" firstAttribute="top" secondItem="S0Z-vC-b8u" secondAttribute="bottom" constant="-1" id="i4c-n9-Gid"/>
                             <constraint firstItem="kId-Mi-ryj" firstAttribute="leading" secondItem="3nU-22-0YM" secondAttribute="leading" id="ngF-Gf-AhO"/>
                             <constraint firstItem="S0Z-vC-b8u" firstAttribute="trailing" secondItem="3nU-22-0YM" secondAttribute="trailing" id="nz1-Vu-T8J"/>
-                            <constraint firstItem="3nU-22-0YM" firstAttribute="trailing" secondItem="cAU-pt-IpF" secondAttribute="trailing" constant="138" id="p3U-VM-M8s"/>
+                            <constraint firstItem="cAU-pt-IpF" firstAttribute="top" secondItem="kId-Mi-ryj" secondAttribute="bottom" constant="30" id="v0q-KX-zHG"/>
+                            <constraint firstAttribute="bottomMargin" secondItem="cAU-pt-IpF" secondAttribute="bottom" constant="-9" id="znc-VR-47q"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="ouf-Gm-J60">
@@ -188,15 +199,17 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
+                        <outlet property="activityView" destination="4Y9-SF-Y9C" id="gxv-T4-pJW"/>
                         <outlet property="collectionView" destination="kId-Mi-ryj" id="JyN-qT-ETk"/>
                         <outlet property="flowLayout" destination="dSY-lU-eXT" id="alo-3f-nvu"/>
                         <outlet property="mapView" destination="S0Z-vC-b8u" id="a4y-Eo-Lbv"/>
                         <outlet property="newCollectionButton" destination="cAU-pt-IpF" id="9Ew-qD-DRF"/>
+                        <outlet property="noImage" destination="SNe-c6-jJF" id="37H-xe-ZDf"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="oLD-zg-4QJ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2146" y="88"/>
+            <point key="canvasLocation" x="2143.4782608695655" y="87.723214285714278"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="uGL-Nh-L7d">
