@@ -5,13 +5,7 @@
 //  Created by Yoyo Chan on 2021-07-05.
 
 //MARK: Todos
-// TODO: 1.Succeed in downloading image
-// TODO: 2.Add new generate image button
-// TODO: 3.Make the method for the new generate image button
-// TODO: 4.Add the placeholder image and place it when the image is downloading
-// TODO: 5.Add the no Image label when there is no label
-// TODO: 6.Add the activity view indicator before the no image label is shown
-// TODO: 7.Add flowlayout for collectionView
+// TODO:  show image if there is any in core data
 
 
 import Foundation
@@ -27,7 +21,6 @@ class ImageCollectionView: UIViewController, NSFetchedResultsControllerDelegate 
     var fetchResultsController: NSFetchedResultsController<FlickrImages>!
     var singlePhotoDetail: SinglePhototDetail!
     var urlArray: [URL] = []
-    var cell = CollectionViewCell()
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var newCollectionButton: UIButton!
     @IBOutlet weak var collectionView: UICollectionView!
@@ -48,10 +41,7 @@ class ImageCollectionView: UIViewController, NSFetchedResultsControllerDelegate 
         collectionView.reloadData()
         setUpFetchedResultsController()
         noImage.isHidden = true
-        checkIfThereIsAlreadyImage()
     }
-    //                print(FlickrClient.Endpoints.getPictureByLatAndLong(pin.latitude, pin.longitude, Int.random(in: 1..<10)).url)
-    //        print(FlickrClient.Endpoints.imageURL(ImageModel.imageURL?.server ?? "", ImageModel.imageURL?.id ?? "", ImageModel.imageURL?.secret ?? "").url)
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
         collectionView.reloadData()
@@ -61,6 +51,32 @@ class ImageCollectionView: UIViewController, NSFetchedResultsControllerDelegate 
         super.viewDidDisappear(animated)
         fetchResultsController = nil
     }
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        do{
+            imageArray = try dataController.viewContext.fetch(fetchResultsController.fetchRequest)
+            if imageArray.count == 0 {
+                print("Downloading image because there is no image save in core data")
+                activityView.startAnimating()
+                FlickrClient.requestImageLatAndLong(lat: pin.latitude, long: pin.longitude, completionHandler: handleImageByLatAndLongResponse(data:error:))
+                print("downloading image")
+            }else if imageArray.count != 0 {
+                print("There is image in core data")
+                let indexPath = IndexPath.init(row: 0, section: 0)
+                print(indexPath.count)
+                let cell = collectionView.cellForItem(at: indexPath) as! CollectionViewCell
+                if let imagView = cell.imageView{
+                    imagView.image = UIImage(data: flickrimage.image!)
+                    setUpFetchedResultsController()
+                }
+              
+            }
+        }catch{
+            print(error)
+        }
+        collectionView.reloadData()
+    }
+    
     @IBAction func backButtonTapped(_ sender: Any) {
         self.dismiss(animated: true, completion: nil)
     }
@@ -78,22 +94,7 @@ class ImageCollectionView: UIViewController, NSFetchedResultsControllerDelegate 
     }
     
     
-    fileprivate func checkIfThereIsAlreadyImage() {
-        if fetchResultsController.fetchedObjects?.count == 0{
-            print("no image")
-            activityView.startAnimating()
-            FlickrClient.requestImageLatAndLong(lat: pin.latitude, long: pin.longitude, completionHandler: handleImageByLatAndLongResponse(data:error:))
-        }else if fetchResultsController.fetchedObjects!.count > 0{
-            print("There is already images")
-            activityView.isHidden = true
-            setUpFetchedResultsController()
-            try? dataController.viewContext.save()
-            let image = UIImage(data: flickrimage.image!)
-            cell.imageView.image = image
-            
-        }
-    }
-    func setUpFetchedResultsController(){
+        func setUpFetchedResultsController(){
         let fetchRequest:NSFetchRequest<FlickrImages> = FlickrImages.fetchRequest()
         fetchRequest.sortDescriptors = []
         let predicate = NSPredicate(format: "pin == %@", pin)
@@ -130,6 +131,25 @@ class ImageCollectionView: UIViewController, NSFetchedResultsControllerDelegate 
                     activityView.stopAnimating()
                     activityView.isHidden = true
                 }
+//                do{
+//                    let imageData = try dataController.viewContext.fetch(fetchResultsController.fetchRequest)
+//                    if imageData.count == 0 {
+//                        activityView.startAnimating()
+//                        FlickrClient.requestImageLatAndLong(lat: pin.latitude, long: pin.longitude, completionHandler: handleImageByLatAndLongResponse(data:error:))
+//                        print("downloading image")
+//                    }else if imageData.count != 0 {
+//                        setUpFetchedResultsController()
+//                        if let img = flickrimage{
+//                        cell.imageView.image = UIImage(data: img.image!)
+//                        }
+//                    }
+//
+//
+//                }catch{
+//                    print(error)
+//                }
+//                collectionView.reloadData()
+            
             }else{
                 noImage.isHidden = false
                 newCollectionButton.isEnabled = true
@@ -161,7 +181,7 @@ extension ImageCollectionView: UICollectionViewDelegate, UICollectionViewDataSou
 //        cell.imageView.image = UIImage(named: "placeHolder")
 
         if let data = picture.image{
-                cell.imageView.image = UIImage(data: data)
+            cell.imageView.image = UIImage(data: data)
             
         }else{
 
